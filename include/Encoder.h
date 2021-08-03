@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "DebouncedEncoder.h"
 
-byte lastPosition;
+byte lastPosition = 0;
 byte encoderPinA = 2;
 byte encoderPinB = 3;
 byte encoderMin = 0;
@@ -20,7 +20,9 @@ void encoder_init(){
 
 byte encoder_check(){
 	byte position = Encoder.getPosition();
-	if (lastPosition != position) lastPosition = position;
-
-    return position;
+	 if (lastPosition != position){
+		lastPosition = position;
+    	return position;
+	 }
+	 else return lastPosition;
 }
