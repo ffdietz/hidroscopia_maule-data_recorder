@@ -17,6 +17,27 @@ void display_init(){
     display.setTextColor(WHITE);                        //set text color to white
     display.clearDisplay();                             //clear display
     // analogReference(DEFAULT);                           // Use default (5v) aref voltage.
+
+}
+
+void display_static()
+{
+    
+    display.setCursor(0,0);                             //set cursor to top of screen
+    display.print("SPECTRUM ANALIZER");
+
+    display.display();                                  //show the buffer
+
+    display.setCursor(0,8);                            //set cursor to top of screen
+    display.print("INPUT READ:");
+
+    display.setCursor(0,16);  
+    display.print("MUX SELECT:");
+
+    display.setCursor(116,16); 
+    display.print("Hz");
+    
+    display.display();                                  //show the buffer
 }
 
 void display_show(int to_display){
