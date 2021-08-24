@@ -13,7 +13,6 @@ void encoder_init()
 {
   NewEncoder::EncoderState state;
 
-  Serial.begin(115200);
   Serial.println("Starting");
 
     encoder.getState(state);

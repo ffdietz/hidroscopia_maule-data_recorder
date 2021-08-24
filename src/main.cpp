@@ -1,15 +1,19 @@
 #include <Arduino.h>
 #include "Libraries.h"
 #include "Encoder.h"
-#include "Display.h"
+#include "Display1.3.h"
+// #include "Display.h"
 #include "Multiplexer.h"
 #include "FFT.h"
+// #include "SDModule.h"
 
 void setup(){
+  
   display_init();
-  display_static();
+  // display_static();
   encoder_init();
   multiplexer_init();
+  // SD_init();
 }
 
 void loop()
@@ -20,10 +24,13 @@ void loop()
 
 //FFT
   fft_update();
+  // SD_update();
 
-//_DISPLAY_////////////////////////////
+//_DISPLAY_////////////////////////// //
 
-  display.clearDisplay();                             //clear display
+  display_test_u8g2();
+
+  // display.clearDisplay();                             //clear display
 
     // for (i = 1; i < 64; i++) 
     // {                                                                 // In the current design, 60Hz and noise
@@ -38,31 +45,31 @@ void loop()
     // display.print();                 //print title to buffer
     
         
-    display.setCursor(0,0);                             //set cursor to top of screen
-    display.print("SPECTRUM ANALIZER");
+    // display.setCursor(0,0);                             //set cursor to top of screen
+    // display.print("SPECTRUM ANALIZER");
 
-    display.setCursor(0,8);                            //set cursor to top of screen
-    display.print("INPUT READ:");
+    // display.setCursor(0,8);                            //set cursor to top of screen
+    // display.print("INPUT READ:");
 
-    display.setCursor(0,16);  
-    display.print("MUX SELECT:");
-    display.print(position );
+    // display.setCursor(0,16);  
+    // display.print("MUX SELECT:");
+    // display.print(position );
 
-    display.setCursor(116,16); 
-    display.print("Hz");
+    // display.setCursor(116,16); 
+    // display.print("Hz");
     
 
-    display.setCursor(88,8);                            //set cursor to top of screen
-    display.print(analogRead(A0)); 
+    // display.setCursor(88,8);                            //set cursor to top of screen
+    // display.print(analogRead(A0)); 
     
-    display.setCursor(0,16);  
-    // display.print(currentValue);
+    // display.setCursor(0,16);  
+    // // display.print(currentValue);
 
-    display.setCursor(98,16); 
-    display.print((50 * (position + 1)));
+    // display.setCursor(98,16); 
+    // display.print((50 * (position + 1)));
 
     
-    display.display();                                  //show the buffer
+    // display.display();                                  //show the buffer
 }
 //CREAR STRUCTUR PARA DISPLAY
 // int display_data[2][1] = {
