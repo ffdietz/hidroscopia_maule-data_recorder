@@ -6,8 +6,8 @@ int   i = 0, val;                                       //counters
 
 int min = 600, max = 0;                                //set minumum & maximum ADC values
 
-
 void fft_update(){
+
     for (i = 0; i < 128; i++) {                         //take 128 samples
         val = analogRead(A0);                             //get audio from Analog 0
         data[i] = val / 4 - 128;                          //each element of array is val/4-128
@@ -15,7 +15,7 @@ void fft_update(){
         if(val > max) max = val;                              //capture maximum level
         if(val < min) min = val;                              //capture minimum level
     };
-  
+
     fix_fft(data, im, 7, 0);                            //perform the FFT on data
 
 }

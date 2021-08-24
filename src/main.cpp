@@ -1,14 +1,13 @@
 #include <Arduino.h>
-#include "Libraries.h"
+
 #include "Encoder.h"
 #include "Display1.3.h"
 // #include "Display.h"
 #include "Multiplexer.h"
 #include "FFT.h"
-// #include "SDModule.h"
+//#include "SDModule.h"
 
-void setup(){
-  
+void setup(){  
   display_init();
   // display_static();
   encoder_init();
@@ -21,14 +20,22 @@ void loop()
   //ENCODER
   byte position = encoder_check();
   multiplexer_selector(position);
-
 //FFT
   fft_update();
   // SD_update();
+//DISPLAY
+  // display_test_u8g2();
+  display_show();
 
-//_DISPLAY_////////////////////////// //
+}
 
-  display_test_u8g2();
+//CREAR STRUCTUR PARA DISPLAY
+// int display_data[2][1] = {
+//   {{0,0}, {"SPECTRUM ANALIZER"}},
+// }
+// display_show(display_data);
+
+
 
   // display.clearDisplay();                             //clear display
 
@@ -70,15 +77,3 @@ void loop()
 
     
     // display.display();                                  //show the buffer
-}
-//CREAR STRUCTUR PARA DISPLAY
-// int display_data[2][1] = {
-//   {{0,0}, {"SPECTRUM ANALIZER"}},
-// }
-// display_show(display_data);
-
-
-//DISPLAY LIBRARY u8g2
-//https://github.com/olikraus/u8g2
-
-//MICROSD MODULE

@@ -40,7 +40,6 @@ void SD_update()
      if (myFile) {
         Serial.print("Writing to test.txt...");
         myFile.println(analogRead(0));
-        Serial.println(analogRead(0));
       // close the file:
       }
   }
