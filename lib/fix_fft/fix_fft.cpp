@@ -103,7 +103,7 @@ inline char FIX_MPY(char a, char b)
 {
   
   //Serial.println(a);
-  //Serial.println(b);
+ //Serial.println(b);
   
   
     /* shift right one less bit (i.e. 15-1) */
