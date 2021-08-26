@@ -20,8 +20,8 @@ void loop()
   byte position = encoder_check();
   multiplexer_selector(position);
 //FFT
-  fft_update();
+  //fft_update();
   // SD_update();
 //DISPLAY
-  display_show();
+  display_show(position);
 }

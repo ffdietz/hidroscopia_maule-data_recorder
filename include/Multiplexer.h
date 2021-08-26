@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 
-byte muxSelectorPin[] = {4, 5, 6};
+byte muxSelectorPin[] = {A1, A2, A3};
 
 
 void multiplexer_init()
