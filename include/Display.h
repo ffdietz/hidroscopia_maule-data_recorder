@@ -11,7 +11,7 @@ U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(ROTATION_180, /* reset=*/ U8X8_PIN_NONE)
 
 void display_init(){   
     u8g2.begin(); 
-    u8g2.setFont(FONT);	// set the font for the terminal window     
+    u8g2.setFont(FONT);	// set the font for the terminal window    
 }
 
 void display_static()
