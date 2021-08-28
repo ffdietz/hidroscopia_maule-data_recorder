@@ -2,8 +2,6 @@
 #include "DebouncedEncoder.h"
 
 byte lastPosition = 0;
-byte encoderPinA = 2;
-byte encoderPinB = 3;
 byte encoderMin = 0;
 byte encoderMax = 6;
 

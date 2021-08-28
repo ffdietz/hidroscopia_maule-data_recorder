@@ -1,19 +1,16 @@
 #include <Arduino.h>
 
-
-byte muxSelectorPin[] = {A1, A2, A3};
-
-
 void multiplexer_init()
 {
-  for(byte i = 0; i < 3; i++) pinMode(muxSelectorPin[i], OUTPUT);
+  pinMode(muxPinA, OUTPUT);
+  pinMode(muxPinB, OUTPUT);
+  pinMode(muxPinC, OUTPUT);
 }
 
 
 void multiplexer_selector(byte n)
 {
-  for (byte i = 0; i < 3; i++) {
-    digitalWrite(muxSelectorPin[i], n & 1);
-    n /= 2;
-  }
+    digitalWrite(muxPinA, n   & 1);
+    digitalWrite(muxPinB, n/2 & 1);
+    digitalWrite(muxPinC, n/4 & 1);
 }
