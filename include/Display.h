@@ -2,10 +2,9 @@
 #include <Wire.h>
 #include <U8g2lib.h>
 
-
-#define ROTATION_0 U8G2_R0
-#define ROTATION_180 U8G2_R2
-#define FONT u8g2_font_6x10_mr
+#define ROTATION_0      U8G2_R0
+#define ROTATION_180    U8G2_R2
+#define FONT            u8g2_font_6x10_mr
 
 U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(ROTATION_180, /* reset=*/ U8X8_PIN_NONE);
 
@@ -16,22 +15,6 @@ void display_init(){
 
 void display_static()
 {
-    
-    // display.setCursor(0,0);                             //set cursor to top of screen
-    // display.print("SPECTRUM ANALIZER");
-
-    // display.display();                                  //show the buffer
-
-    // display.setCursor(0,8);                            //set cursor to top of screen
-    // display.print("INPUT READ:");
-
-    // display.setCursor(0,16);  
-    // display.print("MUX SELECT:");
-
-    // display.setCursor(116,16); 
-    // display.print("Hz");
-    
-    // display.display();                                  //show the buffer
 }
 
 void display_show(byte to_show){
@@ -54,21 +37,12 @@ void display_show(byte to_show){
     u8g2.firstPage();
     do {
         u8g2.setCursor(0, 10);  
-            u8g2.print("SPECTRUM ANALIZER");
+            u8g2.print("HIDROSCOPIA MAULE");
         u8g2.setCursor(0, 24);  
-            u8g2.print("CHANNEL: ");    u8g2.print(to_show + 1);
+            u8g2.print("CHANNEL: ");    u8g2.print(to_show);
         u8g2.setCursor(0, 34);  
             u8g2.print("FREQUENCY: ");  u8g2.print((to_show + 1) * 50); u8g2.print("Hz");
     } while ( u8g2.nextPage() );
-
-    // display.print(analogRead(A0));
-
-    // display.print(position + 1);
-
-    // display.setCursor(98,16); 
-    // display.print((50 * (position + 1)));
-    // display.setCursor(116,16); 
-    // display.print("Hz");
 
 }
 
