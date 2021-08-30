@@ -1,55 +1,39 @@
-
 #include <Wire.h>
 #include <U8g2lib.h>
 
 #define ROTATION_0      U8G2_R0
 #define ROTATION_180    U8G2_R2
 #define FONT            u8g2_font_6x10_mr
+#define FONT_HEIGHT     10
 
-U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(ROTATION_180, /* reset=*/ U8X8_PIN_NONE);
+U8G2_SH1106_128X64_NONAME_1_HW_I2C display(ROTATION_180, /* reset=*/ U8X8_PIN_NONE);
 
-void display_init(){   
-    u8g2.begin(); 
-    u8g2.setFont(FONT);	// set the font for the terminal window    
-}
-
-void display_static()
+void display_init()
 {
-}
-
-void display_show(byte to_show){
-
-    // display.clearDisplay();                             //clear display
-
-    // for(i = 0 ; i < sizeof(to_display) ; i++){
-    //     display.setCursor(to_display[0][i],to_display[1][i]);
-    //     display.print(to_display[i]);
-    // }
-    // for (i = 1; i < 64; i++) 
-    // {                                                                 // In the current design, 60Hz and noise
-    //     int dat = sqrt(data[i] * data[i] + im[i] * im[i]);            //filter out noise and hum
-    //     display.drawLine(
-    //         i*4 + x, ylim, 
-    //         i*4 + x, ylim - dat, 
-    //         WHITE);  // draw bar graphics for freqs above 500Hz to buffer
-    // }
-
-    u8g2.firstPage();
-    do {
-        u8g2.setCursor(0, 10);  
-            u8g2.print("HIDROSCOPIA MAULE");
-        u8g2.setCursor(0, 24);  
-            u8g2.print("CHANNEL: ");    u8g2.print(to_show);
-        u8g2.setCursor(0, 34);  
-            u8g2.print("FREQUENCY: ");  u8g2.print((to_show + 1) * 50); u8g2.print("Hz");
-    } while ( u8g2.nextPage() );
-
+    display.begin(); 
+    display.setFont(FONT);
 }
 
 
-void display_test_u8g2(){
-    u8g2.firstPage();
+void display_show(byte to_show)
+{
+    display.setCursor(0, 10);  
+        display.print("HIDROSCOPIA MAULE");
+    display.setCursor(0, 24);  
+        display.print("CHANNEL: ");    display.print(to_show + 1);
+    display.setCursor(0, 34);  
+        display.print("FREQUENCY: ");  display.print((to_show + 1) * 50); display.print("Hz");
+}
+
+
+void display_test(){
+ display.firstPage(); 
     do {
-        u8g2.drawStr(0, 15, "TEST:123");
-    } while ( u8g2.nextPage() );
+        display.setFont(u8g2_font_ncenB08_tr);	// choose a suitable font
+        display.drawStr(0,10,"Hello World!");	// write something to the internal memory
+        display.drawLine(
+              0, 0, 
+              10, 10 ); // skip displaying the 0-500hz band completely.
+        display.sendBuffer();					// transfer internal memory to the display
+    } while( display.nextPage() ); 
 }
