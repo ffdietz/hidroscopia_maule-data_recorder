@@ -13,6 +13,8 @@
 byte x = 0, i;
 int y[LENGTH];
 
+String message = "";
+
 U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_NO_ACK);
 
 
@@ -35,6 +37,12 @@ void display_init(){
     clearY();
 }
 
+void display_variable(byte xpos, byte ypos, byte text_to_show){
+    char buffer[255];
+    sprintf (buffer, "%d", text_to_show);
+    display.drawStr(xpos, ypos, buffer);
+}
+
 void display_header(){
     display.drawStr(0, 7, "HIDROSCOPIA MAULE");
     // display.drawStr(0, 17,  "CHANNEL ");
@@ -50,7 +58,6 @@ void display_recording(){
         state = !state;
     }
     if (state)  display.drawDisc(124, 3, 3, U8G_DRAW_ALL);
-    // else        display.drawCircle(122, 5, 5, U8G_DRAW_ALL);
 }
 
 void display_recording_pause(){
@@ -84,8 +91,3 @@ void display_test(){
     } while( display.nextPage() ); 
 }
 
-void display_variable(byte xpos, byte ypos, byte text_to_show){
-    char buffer[255];
-    sprintf (buffer, "%d", text_to_show);
-    display.drawStr(xpos, ypos, buffer);
-}
