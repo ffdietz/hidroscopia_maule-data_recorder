@@ -1,13 +1,5 @@
 #include <Arduino.h>
-
-#define encoderPinA 2
-#define encoderPinB 3
-#define muxPinA A1
-#define muxPinB A2
-#define muxPinC A3
-#define SD_CSPin 10
 #define analogPin A0
-#define recButton 4
 
 #include "Display.h"
 #include "Encoder.h"
@@ -15,7 +7,7 @@
 #include "Multiplexer.h"
 #include "microSD.h"
 
-#define FASTADC 0
+#define FASTADC 1
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
@@ -25,7 +17,7 @@
 
 uint16_t  analog_input ;
 uint8_t   channel_select;
-boolean   rec_state = false;
+boolean   rec_state = true;
 
 void setup(void) {
   display_init();
@@ -57,17 +49,18 @@ void display_buffer(){
 
 void loop(void) {
 
-  channel_select = encoder_position();
-  analog_input = analogRead(analogPin);
-  if(recording_button.debounce())  rec_state = !rec_state;
-
-  multiplexer_selector(channel_select);
-  display_graphic_update(analog_input);
-
+  channel_select  = encoder_position();
+  analog_input    = analogRead(analogPin);
+  
+  pushButton.poll();
+  if(pushButton.pushed()) rec_state = !rec_state;
   if(rec_state == true)   sd_write(analog_input);
-  if(rec_state == false)  sd_stop();
+  else                    sd_stop();
 
+  multiplexer_selector(channel_select);  
+
+  // sd_test();
   display_buffer();
-  //display_test();
+  display_graphic_update(analog_input);
 
 }
