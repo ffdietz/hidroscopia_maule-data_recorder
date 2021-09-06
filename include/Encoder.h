@@ -1,9 +1,12 @@
 #include <Arduino.h>
 #include "DebouncedEncoder.h"
 
+#define encoderPinA 2
+#define encoderPinB 3
+
 byte lastPosition = 0;
 byte encoderMin = 0;
-byte encoderMax = 2;
+byte encoderMax = 6;
 
 DebouncedEncoder Encoder(encoderPinA, encoderPinB, encoderMax, encoderMin, true);
 

@@ -1,14 +1,4 @@
 #include <Arduino.h>
-
-#define encoderPinA 2
-#define encoderPinB 3
-
-#define muxPinA A1
-#define muxPinB A2
-#define muxPinC A3
-
-#define SD_CSPin 10
-
 #define analogPin A0
 
 #include "Display.h"
@@ -17,8 +7,7 @@
 #include "Multiplexer.h"
 #include "microSD.h"
 
-#define FASTADC 0
-// defines for setting and clearing register bits
+#define FASTADC 1
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
@@ -26,9 +15,9 @@
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
-
-uint16_t  input_read ;
-uint8_t   menu_select;
+uint16_t  analog_input ;
+uint8_t   channel_select;
+boolean   rec_state = true;
 
 void setup(void) {
   display_init();
@@ -49,29 +38,29 @@ void display_buffer(){
   do{
     display_header();
     display_graphic_draw();
-    
-    if(menu_select == 0){
-      display_recording_pause();
-    }
+    display_variable(0,   20, channel_select);    
+    // display_variable(0,   20, message);
 
-    if(menu_select == 1){
-      display_recording();
-    }
+    if(rec_state == true)   display_recording();
+    if(rec_state == false)  display_recording_pause();
 
   } while( display.nextPage() ); 
 }
 
 void loop(void) {
 
-  menu_select = encoder_position();
-  input_read  = analogRead(analogPin);
+  channel_select  = encoder_position();
+  analog_input    = analogRead(analogPin);
+  
+  pushButton.poll();
+  if(pushButton.pushed()) rec_state = !rec_state;
+  if(rec_state == true)   sd_write(analog_input);
+  else                    sd_stop();
 
-  multiplexer_selector(menu_select);
-  display_graphic_update(input_read);
+  multiplexer_selector(channel_select);  
 
-  if(menu_select == 0) sd_stop();
-  if(menu_select == 1) sd_write(input_read);
-
+  // sd_test();
   display_buffer();
+  display_graphic_update(analog_input);
 
 }

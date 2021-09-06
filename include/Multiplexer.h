@@ -1,4 +1,7 @@
 #include <Arduino.h>
+#define muxPinA A1
+#define muxPinB A2
+#define muxPinC A3
 
 void multiplexer_init()
 {
