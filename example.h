@@ -1,150 +1,149 @@
-/*
- * Simple data logger.
+/**
+ *  Draws a scrolling graph of a single analog input (set to A0) on the OLED display
+ *
+ *  By Jon E. Froehlich
+ *  @jonfroehlich
+ *  http://makeabilitylab.io
+ *
  */
+
+#include <Wire.h>
 #include <SPI.h>
-#include <SdFat.h>
 
-// SD chip select pin.  Be sure to disable any other SPI devices such as Enet.
-const uint8_t chipSelect = 10;
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
-// Interval between data records in milliseconds.
-// The interval must be greater than the maximum SD write latency plus the
-// time to acquire and write data to the SD to avoid overrun errors.
-// Run the bench example to check the quality of your SD card.
-const uint32_t SAMPLE_INTERVAL_MS = 1000;
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-// Log file base name.  Must be six characters or less.
-#define FILE_BASE_NAME "Data"
-//------------------------------------------------------------------------------
-// File system object.
-SdFat sd;
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+Adafruit_SSD1306 _display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// Log file.
-SdFile file;
+const int ANALOG_INPUT_PIN = A0;
+const int MIN_ANALOG_INPUT = 0;
+const int MAX_ANALOG_INPUT = 1023;
+const int DELAY_LOOP_MS = 5; // change to slow down how often to read and graph value
 
-// Time in micros for next data record.
-uint32_t logTime;
+int _circularBuffer[SCREEN_WIDTH]; //fast way to store values 
+int _curWriteIndex = 0; // tracks where we are in the circular buffer
 
-//==============================================================================
-// User functions.  Edit writeHeader() and logData() for your requirements.
+// for tracking fps
+float _fps = 0;
+unsigned long _frameCount = 0;
+unsigned long _fpsStartTimeStamp = 0;
 
-const uint8_t ANALOG_COUNT = 4;
-//------------------------------------------------------------------------------
-// Write data header.
-// void writeHeader() {
-//   file.print(F("micros"));
-//   for (uint8_t i = 0; i < ANALOG_COUNT; i++) {
-//     file.print(F(",adc"));
-//     file.print(i, DEC);
+// status bar
+boolean _drawStatusBar = true; // change to show/hide status bar
+int _graphHeight = SCREEN_HEIGHT;
+
+// void setup() {
+//   Serial.begin(9600);
+
+//   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+//   if (!_display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) { // Address 0x3D for 128x64
+//     Serial.println(F("SSD1306 allocation failed"));
+//     for (;;); // Don't proceed, loop forever
 //   }
-//   file.println();
+
+//   // Clear the buffer
+//   _display.clearDisplay();
+
+//   _display.setTextSize(1);
+//   _display.setTextColor(WHITE, BLACK);
+//   _display.setCursor(0, 0);
+//   _display.println("Screen initialized!");
+//   _display.display();
+//   delay(500);
+//   _display.clearDisplay();
+
+//   if(_drawStatusBar){
+//     _graphHeight = SCREEN_HEIGHT - 10;
+//   }
+
+//   _fpsStartTimeStamp = millis();
 // }
-//------------------------------------------------------------------------------
-// Log a data record.
-void logData() {
-  uint16_t data[ANALOG_COUNT];
 
-  // Read all channels to avoid SD write latency between readings.
-  for (uint8_t i = 0; i < ANALOG_COUNT; i++) {
-    data[i] = analogRead(i);
-  }
-  // Write data to file.  Start with log time in micros.
-  file.print(logTime);
-
-  // Write ADC data to CSV record.
-  for (uint8_t i = 0; i < ANALOG_COUNT; i++) {
-    file.write(',');
-    file.print(data[i]);
-  }
-  file.println();
-}
-//==============================================================================
-// Error messages stored in flash.
-#define error(msg) sd.errorHalt(F(msg))
-//------------------------------------------------------------------------------
-void setup() {
-  const uint8_t BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
-  char fileName[13] = FILE_BASE_NAME "00.csv";
-
-  Serial.begin(9600);
-  
-  // Wait for USB Serial 
-  while (!Serial) {
-    SysCall::yield();
-  }
-  delay(1000);
-
-  Serial.println(F("Type any character to start"));
-  while (!Serial.available()) {
-    SysCall::yield();
-  }
-  
-  // Initialize at the highest speed supported by the board that is
-  // not over 50 MHz. Try a lower speed if SPI errors occur.
-  if (!sd.begin(chipSelect, SD_SCK_MHZ(50))) {
-    sd.initErrorHalt();
-  }
-
-  // Find an unused file name.
-  if (BASE_NAME_SIZE > 6) {
-    error("FILE_BASE_NAME too long");
-  }
-  while (sd.exists(fileName)) {
-    if (fileName[BASE_NAME_SIZE + 1] != '9') {
-      fileName[BASE_NAME_SIZE + 1]++;
-    } else if (fileName[BASE_NAME_SIZE] != '9') {
-      fileName[BASE_NAME_SIZE + 1] = '0';
-      fileName[BASE_NAME_SIZE]++;
-    } else {
-      error("Can't create file name");
-    }
-  }
-  if (!file.open(fileName, O_WRONLY | O_CREAT | O_EXCL)) {
-    error("file.open");
-  }
-  // Read any Serial data.
-  do {
-    delay(10);
-  } while (Serial.available() && Serial.read() >= 0);
-
-  Serial.print(F("Logging to: "));
-  Serial.println(fileName);
-  Serial.println(F("Type any character to stop"));
-
-  // Write data header.
-  // writeHeader();
-
-  // Start on a multiple of the sample interval.
-  logTime = micros()/(1000UL*SAMPLE_INTERVAL_MS) + 1;
-  logTime *= 1000UL*SAMPLE_INTERVAL_MS;
-}
-//------------------------------------------------------------------------------
 void loop() {
-  // Time for next record.
-  logTime += 1000UL*SAMPLE_INTERVAL_MS;
+  // Clear the display on each frame. We draw from the _circularBuffer
+  _display.clearDisplay();
 
-  // Wait for log time.
-  int32_t diff;
-  do {
-    diff = micros() - logTime;
-  } while (diff < 0);
+  // Read and store the analog data into a circular buffer
+  int analogVal = analogRead(ANALOG_INPUT_PIN);
+  Serial.println(analogVal);
+  _circularBuffer[_curWriteIndex++] = analogVal;
 
-  // Check for data rate too high.
-  if (diff > 10) {
-    error("Missed data record");
+  // Set the circular buffer index back to zero when it reaches the 
+  // right of the screen
+  if(_curWriteIndex >= _display.width()){
+    _curWriteIndex = 0;
   }
-
-  logData();
-
-  // Force data to SD and update the directory entry to avoid data loss.
-  if (!file.sync() || file.getWriteError()) {
-    error("write error");
+  
+  if(_drawStatusBar){
+    drawStatusBar(analogVal);
   }
-
-  if (Serial.available()) {
-    // Close file and stop.
-    file.close();
-    Serial.println(F("Done"));
-    SysCall::halt();
+  
+  // Draw the line graph based on data in _circularBuffer
+  int xPos = 0; 
+  for (int i = _curWriteIndex; i < _display.width(); i++){
+    int analogVal = _circularBuffer[i];
+    drawLine(xPos, analogVal);
+    xPos++;
   }
+  
+  for(int i = 0; i < _curWriteIndex; i++){
+    int analogVal = _circularBuffer[i];
+    drawLine(xPos, analogVal);
+    xPos++;;
+  }
+  
+  _display.display();
+  
+  calcFrameRate();
+  
+  delay(DELAY_LOOP_MS);
+}
+
+/**
+ * Draw the line at the given x position and analog value
+ */
+void drawLine(int xPos, int analogVal){
+  int lineHeight = map(analogVal, MIN_ANALOG_INPUT, MAX_ANALOG_INPUT, 0, _graphHeight);
+  int yPos = _display.height() - lineHeight;
+  _display.drawFastVLine(xPos, yPos, lineHeight, SSD1306_WHITE);
+}
+
+/**
+ * Call this every frame to calculate frame rate
+ */
+void calcFrameRate() {
+    
+  unsigned long elapsedTime = millis() - _fpsStartTimeStamp;
+  _frameCount++;
+  if (elapsedTime > 1000) {
+    _fps = _frameCount / (elapsedTime / 1000.0);
+    _fpsStartTimeStamp = millis();
+    _frameCount = 0;
+  }
+}
+
+/**
+ * Draws the status bar at top of screen with fps and analog value
+ */
+void drawStatusBar(int analogVal) {
+
+   // erase status bar by drawing all black
+  _display.fillRect(0, 0, _display.width(), 8, SSD1306_BLACK); 
+  
+  // Draw current val
+  _display.setCursor(0, 0);
+  _display.print(analogVal);
+
+  // Draw frame count
+  int16_t x1, y1;
+  uint16_t w, h;
+  _display.getTextBounds("XX.XX fps", 0, 0, &x1, &y1, &w, &h);
+  _display.setCursor(_display.width() - w, 0);
+  _display.print(_fps);
+  _display.print(" fps");
 }
