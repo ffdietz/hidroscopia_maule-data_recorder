@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#define analogPin A0
-
 #include "Display.h"
 #include "Encoder.h"
 #include "FFT.h"
 #include "Multiplexer.h"
 #include "microSD.h"
+
+#define analogPin A0
 
 #define FASTADC 1
 #ifndef cbi
@@ -33,16 +33,18 @@ void setup(void) {
 }
 
 void display_buffer(){
-
   display.firstPage(); 
   do{
     display_header();
-    display_graphic_draw();
-    display_variable(0,   20, channel_select);    
+    display_channel(channel_select);
+    display_filename(filename);
+
+    // display_graphic_draw();
+    display_graphic_circular();
     // display_variable(0,   20, message);
 
-    if(rec_state == true)   display_recording();
-    if(rec_state == false)  display_recording_pause();
+    if(rec_state) display_recording();
+    else          display_recording_pause();
 
   } while( display.nextPage() ); 
 }
@@ -54,13 +56,14 @@ void loop(void) {
   
   pushButton.poll();
   if(pushButton.pushed()) rec_state = !rec_state;
-  if(rec_state == true)   sd_write(analog_input);
-  else                    sd_stop();
 
-  multiplexer_selector(channel_select);  
+  if(rec_state) sd_write(analog_input);
+  else          sd_stop();
+
+  multiplexer_selector(channel_select);
 
   // sd_test();
   display_buffer();
-  display_graphic_update(analog_input);
-
+  // display_graphic_update(analog_input);
+  display_graphic_circular_update(analog_input);
 }

@@ -65,8 +65,15 @@ void display_recording_pause(){
     display.drawFrame(121, 0, 7, 7);
 }
 
-void display_graphic_update(int input_value){
+void display_channel(uint8_t channel){    
+    display_variable(110, 20, channel);
+}
 
+void display_filename(char *file){
+    display.drawStr(0, 20, file);
+}
+
+void display_graphic_update(int input_value){
     y[x] = linear(input_value, 0, 1024, DISPLAY_HEIGHT-30, 0);
     x++;
     if(x >= DISPLAY_WIDTH){
@@ -84,6 +91,36 @@ void display_graphic_draw(){
   }
 }
 
+int _circularBuffer[128]; //fast way to store values 
+int _curWriteIndex = 0; // tracks where we are in the circular buffer
+
+void drawLine(int xPos, int analogVal){
+  int lineHeight = linear(analogVal, 0, 1023, 0, 800);
+  int yPos = 64 - lineHeight;
+//   display.drawVLine(xPos, yPos, lineHeight);
+  display.drawPixel(xPos, yPos);
+}
+
+void display_graphic_circular_update(int input_value){
+    _circularBuffer[_curWriteIndex++] = input_value;
+    if(_curWriteIndex >= DISPLAY_WIDTH) _curWriteIndex = 0;
+}
+
+void display_graphic_circular(){
+    int xPos = 0; 
+    for(int i = _curWriteIndex; i < DISPLAY_WIDTH; i++){
+        int input_value = _circularBuffer[i];
+        drawLine(xPos, input_value);
+        xPos++;
+    }
+
+    for(int i = 0; i < _curWriteIndex; i++){
+        int analogVal = _circularBuffer[i];
+        drawLine(xPos, analogVal);
+        xPos++;;
+    }
+}
+
 void display_test(){
     display.firstPage(); 
     do{
@@ -91,3 +128,5 @@ void display_test(){
     } while( display.nextPage() ); 
 }
 
+
+// https://github.com/makeabilitylab/arduino/blob/master/OLED/AnalogGraphScrolling/AnalogGraphScrolling.ino

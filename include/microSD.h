@@ -6,76 +6,55 @@
 #define SD_CSPin  10
 #define recButton 4
 
-#define FILE_BASE_NAME "hidros"
-
-int BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
+#define FILE_BASE_NAME "HM_"
+const uint8_t BASE_NAME_SIZE= sizeof(FILE_BASE_NAME) - 1;
 char filename[] = FILE_BASE_NAME "00.txt";
-File myFile;
 
-SdFat sd;
-SdFile file;
+SdFat SD;
+SdFile recording_file;
 
 Switch pushButton = Switch(recButton);
 
-#define error(msg) sd.errorHalt(F(msg))
+#define error(msg) SD.errorHalt(F(msg))
  
 void sd_init(){
-const uint8_t BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
-char fileName[13] = FILE_BASE_NAME "00.txt";
+  // Serial.begin(9600);
 
-  Serial.begin(9600);
-  
-  // Initialize at the highest speed supported by the board that is
-  // not over 50 MHz. Try a lower speed if SPI errors occur.
-  if (!sd.begin(SD_CSPin, SD_SCK_MHZ(50))) {
-    sd.initErrorHalt();
-  }
+  if (!SD.begin(SD_CSPin, SD_SCK_MHZ(50)))  SD.initErrorHalt();
 
-  // Find an unused file name.
-  if (BASE_NAME_SIZE > 6) {
-    error("FILE_BASE_NAME too long");
+  if(BASE_NAME_SIZE > 6)  error("FILE_BASE_NAME too long");
+
+  while (SD.exists(filename)) {
+    if (filename[BASE_NAME_SIZE + 1] != '9') filename[BASE_NAME_SIZE + 1]++;
+    else if (filename[BASE_NAME_SIZE] != '9') {
+      filename[BASE_NAME_SIZE + 1] = '0';
+      filename[BASE_NAME_SIZE]++;
+    } else  error("Can't create file name");
   }
-  while (sd.exists(fileName)) {
-    if (fileName[BASE_NAME_SIZE + 1] != '9') {
-      fileName[BASE_NAME_SIZE + 1]++;
-    } else if (fileName[BASE_NAME_SIZE] != '9') {
-      fileName[BASE_NAME_SIZE + 1] = '0';
-      fileName[BASE_NAME_SIZE]++;
-    } else {
-      error("Can't create file name");
-    }
-  }
-  if (!file.open(fileName, O_WRONLY | O_CREAT | O_EXCL)) {
+  if (!recording_file.open(filename, O_WRONLY | O_CREAT | O_EXCL)) {
     error("file.open");
   }
-  // Read any Serial data.
- 
 }
 
 void sd_write(uint16_t input_write){
-
   // file = sd.open(filename, FILE_WRITE);
-
-  if (file) {  
-    file.println(input_write);
-  }
+  if (recording_file) recording_file.println(input_write);
 }
 
 void sd_stop(){  
-    file.close(); 
+    recording_file.close(); 
 }
 
 void sd_test(){
   if(millis() < 50000){
-     if (myFile) {
+     if (recording_file) {
         Serial.println("Writing to test.txt...");
-        myFile.println(analogRead(0));
-      // close the file:
+        recording_file.println(analogRead(0));
       }
   }
   else {
     Serial.println("done");
-        myFile.close();
+        recording_file.close();
   }
 }
 
