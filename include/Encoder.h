@@ -4,9 +4,9 @@
 #define encoderPinA 2
 #define encoderPinB 3
 
-byte lastPosition = 0;
-byte encoderMin = 0;
-byte encoderMax = 6;
+byte lastPosition 	= 0;
+byte encoderMin 	= 0;
+byte encoderMax 	= 6;
 
 DebouncedEncoder Encoder(encoderPinA, encoderPinB, encoderMax, encoderMin, true);
 
@@ -19,7 +19,7 @@ void encoder_init(){
 	attachInterrupt(digitalPinToInterrupt(encoderPinB), ISREnc, CHANGE);
 }
 
-byte encoder_position(){
+int encoder_position(){
 	byte position = Encoder.getPosition();
 	 if (lastPosition != position){
 		lastPosition = position;
