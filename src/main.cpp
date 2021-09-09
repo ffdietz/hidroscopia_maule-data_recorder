@@ -36,8 +36,8 @@ void display_buffer(){
   display.firstPage(); 
   do{
     display_header();
-    display_channel(channel_select);
     display_filename(filename);
+    display_channel((channel_select + 1) * 50);
 
     // display_graphic_draw();
     display_graphic_circular();
@@ -62,8 +62,8 @@ void loop(void) {
 
   multiplexer_selector(channel_select);
 
+  display_graphic_circular_update(analog_input);
   // sd_test();
   display_buffer();
   // display_graphic_update(analog_input);
-  display_graphic_circular_update(analog_input);
 }

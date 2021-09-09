@@ -23,8 +23,8 @@ void clearY(){
 }
 
 float linear(float i, float imin, float imax, float omin, float omax){
-  if (i < imin) i = imin;
-  if (i > imax) i = imax;
+  if(i < imin) i = imin;
+  if(i > imax) i = imax;
   float o = (( omax - omin ) * (( i - imin ) / ( imax-imin )) + omin );
   return o;
 }
@@ -37,7 +37,7 @@ void display_init(){
     clearY();
 }
 
-void display_variable(byte xpos, byte ypos, byte text_to_show){
+void display_variable(byte xpos, byte ypos, int text_to_show){
     char buffer[255];
     sprintf (buffer, "%d", text_to_show);
     display.drawStr(xpos, ypos, buffer);
@@ -65,12 +65,13 @@ void display_recording_pause(){
     display.drawFrame(121, 0, 7, 7);
 }
 
-void display_channel(uint8_t channel){    
-    display_variable(110, 20, channel);
+void display_channel(uint16_t channel){
+    display.drawStr(78,17, "CANAL");
+    display_variable(110, 17, channel);
 }
 
 void display_filename(char *file){
-    display.drawStr(0, 20, file);
+    display.drawStr(0, 17, file);
 }
 
 void display_graphic_update(int input_value){
@@ -91,12 +92,12 @@ void display_graphic_draw(){
   }
 }
 
-int _circularBuffer[128]; //fast way to store values 
+int _circularBuffer[DISPLAY_WIDTH]; //fast way to store values 
 int _curWriteIndex = 0; // tracks where we are in the circular buffer
 
 void drawLine(int xPos, int analogVal){
-  int lineHeight = linear(analogVal, 0, 1023, 0, 800);
-  int yPos = 64 - lineHeight;
+  int lineHeight = linear(analogVal, 0, 1023, 0, DISPLAY_HEIGHT * 0.4);
+  int yPos = DISPLAY_HEIGHT / 2 + lineHeight;
 //   display.drawVLine(xPos, yPos, lineHeight);
   display.drawPixel(xPos, yPos);
 }
