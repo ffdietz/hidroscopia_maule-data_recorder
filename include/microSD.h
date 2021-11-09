@@ -6,29 +6,29 @@
 #define SD_CSPin  10
 #define recButton 4
 
-#define FILE_BASE_NAME "HM_"
-const uint8_t BASE_NAME_SIZE= sizeof(FILE_BASE_NAME) - 1;
-char filename[] = FILE_BASE_NAME "00.txt";
-
 SdFat SD;
 SdFile recording_file;
 
 Switch pushButton = Switch(recButton);
 
+#define FILE_NAME "HM_"
 #define error(msg) SD.errorHalt(F(msg))
- 
+
+const uint8_t   NAME_SIZE = sizeof(FILE_NAME) - 1;
+char    filename[] = FILE_NAME "00.txt";
+
 void sd_init(){
   // Serial.begin(9600);
 
   if (!SD.begin(SD_CSPin, SD_SCK_MHZ(50)))  SD.initErrorHalt();
 
-  if(BASE_NAME_SIZE > 6)  error("FILE_BASE_NAME too long");
+  if(NAME_SIZE > 6)  error("BASE_NAME too long");
 
   while (SD.exists(filename)) {
-    if (filename[BASE_NAME_SIZE + 1] != '9') filename[BASE_NAME_SIZE + 1]++;
-    else if (filename[BASE_NAME_SIZE] != '9') {
-      filename[BASE_NAME_SIZE + 1] = '0';
-      filename[BASE_NAME_SIZE]++;
+    if(filename[NAME_SIZE + 1] != '9') filename[NAME_SIZE + 1]++;
+    else if(filename[NAME_SIZE] != '9') {
+      filename[NAME_SIZE + 1] = '0';
+      filename[NAME_SIZE]++;
     } else  error("Can't create file name");
   }
   if (!recording_file.open(filename, O_WRONLY | O_CREAT | O_EXCL)) {

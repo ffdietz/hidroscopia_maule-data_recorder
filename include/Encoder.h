@@ -6,7 +6,7 @@
 
 byte lastPosition 	= 0;
 byte encoderMin 	= 0;
-byte encoderMax 	= 6;
+byte encoderMax 	= 7;
 
 DebouncedEncoder Encoder(encoderPinA, encoderPinB, encoderMax, encoderMin, true);
 

@@ -23,7 +23,7 @@ void setup(void) {
   display_init();
   encoder_init();
   multiplexer_init();
-  sd_init();
+  // sd_init();
 
   #if FASTADC
     sbi(ADCSRA,ADPS2) ;   // set prescale to 16
@@ -36,8 +36,10 @@ void display_buffer(){
   display.firstPage(); 
   do{
     display_header();
-    display_filename(filename);
-    display_channel((channel_select + 1) * 50);
+    // display_filename(filename);
+
+    // display_channel((channel_select + 1) * 50);
+    display_channel(channel_select + 1);
 
     // display_graphic_draw();
     display_graphic_circular();
@@ -57,13 +59,15 @@ void loop(void) {
   pushButton.poll();
   if(pushButton.pushed()) rec_state = !rec_state;
 
-  if(rec_state) sd_write(analog_input);
-  else          sd_stop();
+  // if(rec_state) sd_write(analog_input);
+  // else          sd_stop();
 
   multiplexer_selector(channel_select);
+  // multiplexer_selector(random(7));
 
   display_graphic_circular_update(analog_input);
-  // sd_test();
   display_buffer();
+
+  // sd_test();
   // display_graphic_update(analog_input);
 }
