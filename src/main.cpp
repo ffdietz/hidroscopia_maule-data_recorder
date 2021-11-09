@@ -16,7 +16,7 @@
 #endif
 
 uint16_t  analog_input ;
-uint8_t   channel_select;
+uint8_t   channel_select = 0;
 boolean   rec_state = true;
 
 void setup(void) {
@@ -51,19 +51,40 @@ void display_buffer(){
   } while( display.nextPage() ); 
 }
 
+
+
+unsigned long prev_millis = 0;
+unsigned long interval_on = 10;
+
 void loop(void) {
 
-  channel_select  = encoder_position();
-  analog_input    = analogRead(analogPin);
-  
-  pushButton.poll();
-  if(pushButton.pushed()) rec_state = !rec_state;
+  unsigned long current_millis = millis();
+  // channel_select  = encoder_position();
+  // channel_select  = map(analog_input,0, 1023, 0, 7);
+
+  analog_input    = analogRead(analogPin);  
+  interval_on = analog_input;
+
+  if(current_millis - prev_millis >= interval_on) {
+    // interval_on = analog_input;
+    // channel_select  = byte(random(7));
+    channel_select++;
+    if(channel_select > 6) channel_select = 0;
+
+    prev_millis = current_millis;
+  }
+
+    // interval_on = analog_input;
+
+
+  // pushButton.poll();
+  // if(pushButton.pushed()) rec_state = !rec_state;
 
   // if(rec_state) sd_write(analog_input);
   // else          sd_stop();
 
+
   multiplexer_selector(channel_select);
-  // multiplexer_selector(random(7));
 
   display_graphic_circular_update(analog_input);
   display_buffer();
