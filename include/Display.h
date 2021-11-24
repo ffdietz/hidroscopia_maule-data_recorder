@@ -68,7 +68,7 @@ void display_recording_pause(){
 void display_channel(uint16_t channel){
     display.drawStr(0,17, "CANAL");
     display_variable(32, 17, channel);
-    display_variable(45, 17, channel * 50);
+    // display_variable(45, 17, channel * 50);
 }
 
 void display_filename(char *file){

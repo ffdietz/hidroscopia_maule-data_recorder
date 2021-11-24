@@ -35,60 +35,51 @@ void setup(void) {
 void display_buffer(){
   display.firstPage(); 
   do{
-    display_header();
-    // display_filename(filename);
-
-    // display_channel((channel_select + 1) * 50);
-    display_channel(channel_select + 1);
-
-    // display_graphic_draw();
-    display_graphic_circular();
+    // display_header();                       // display_filename(filename);
+    display_channel(channel_select + 1);    // display_channel((channel_select + 1) * 50);
+    // display_graphic_circular();             // display_graphic_draw();
+  
     // display_variable(0,   20, message);
 
-    if(rec_state) display_recording();
-    else          display_recording_pause();
+    // if(rec_state) display_recording();
+    if(!rec_state)          display_recording_pause();
 
   } while( display.nextPage() ); 
 }
 
-
-
 unsigned long prev_millis = 0;
-unsigned long interval_on = 10;
+unsigned long interval_on = 50;
 
 void loop(void) {
-
   unsigned long current_millis = millis();
-  // channel_select  = encoder_position();
-  // channel_select  = map(analog_input,0, 1023, 0, 7);
 
-  analog_input    = analogRead(analogPin);  
-  interval_on = analog_input;
-
-  if(current_millis - prev_millis >= interval_on) {
+  analog_input    = analogRead(analogPin);
     // interval_on = analog_input;
-    // channel_select  = byte(random(7));
-    channel_select++;
-    if(channel_select > 6) channel_select = 0;
 
-    prev_millis = current_millis;
+
+  pushButton.poll();
+  if(pushButton.pushed()) rec_state = !rec_state;
+
+  if(rec_state){
+    if(current_millis - prev_millis >= interval_on) {
+
+      // channel_select++;
+      interval_on = random(150) * 1;
+      channel_select  = byte(random(3));
+
+      if(channel_select > 7) channel_select = 0;
+      prev_millis = current_millis;
+    }
   }
-
-    // interval_on = analog_input;
-
-
-  // pushButton.poll();
-  // if(pushButton.pushed()) rec_state = !rec_state;
+  else {
+    channel_select  = encoder_position();
+  }
 
   // if(rec_state) sd_write(analog_input);
   // else          sd_stop();
-
 
   multiplexer_selector(channel_select);
 
   display_graphic_circular_update(analog_input);
   display_buffer();
-
-  // sd_test();
-  // display_graphic_update(analog_input);
 }
