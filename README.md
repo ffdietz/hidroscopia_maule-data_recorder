@@ -1,7 +1,7 @@
 # Hidroscopia Maule * Data Recorder
 ## Technical proposal for the artwork Hidroscopia Maule  
 by the artist [Claudia González Godoy](http://www.claudiagonzalez.cl/cgg/)  
-developed by Felipe Fierro Dietz 
+developed by [Felipe Fierro Dietz](http://www.felipefierro.dev) 
 
 ### Introduction
 It is required the development of a device that allows the capture of the electromagnetic field (EMF) from the  high voltage lines in the VII region of Maule, Chile.
